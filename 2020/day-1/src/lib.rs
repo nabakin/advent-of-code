@@ -3,13 +3,36 @@ use std::io::{BufRead, BufReader};
 use std::path::Path;
 use std::cmp::Ordering;
 
+use std::collections::HashSet;
+
 pub fn run(path: &str) {
     print!("Day 1 Part 1 running...");
     assert_eq!(1013211, part_1(path).unwrap());
     println!("Finished.");
 }
 
+// O(n) HashSet
 fn part_1(path: &str) -> Option<u32> {
+    let input_file = File::open(path).unwrap();
+    let reader = BufReader::new(&input_file);
+    let mut visited = HashSet::new();
+
+    for expense in reader.lines() {
+        let expense = expense.unwrap().parse::<u32>().unwrap();
+        let matching_expense = 2020 - expense;
+
+        if visited.contains(&matching_expense) {
+            return Some(matching_expense * expense);
+        }
+
+        visited.insert(expense);
+    }
+
+    None
+}
+
+// Quick sort + a single search. O(n*logn)
+fn part_1_old(path: &str) -> Option<u32> {
     let mut expenses: Vec<u32> = file_lines_to_u32s(Path::new(path));
     expenses.sort_unstable();
 
@@ -35,6 +58,15 @@ fn file_lines_to_u32s(path: &Path) -> Vec<u32> {
 
     reader.lines()
         .map(|number_string| number_string.unwrap().parse::<u32>().unwrap())
+        .collect()
+}
+
+fn file_lines_to_strings(path: &Path) -> Vec<String> {
+    let input_file = File::open(path).unwrap();
+    let reader = BufReader::new(&input_file);
+
+    reader.lines()
+        .map(|number_string| number_string.unwrap())
         .collect()
 }
 
